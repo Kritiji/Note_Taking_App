@@ -1,12 +1,48 @@
 import 'package:flutter/material.dart';
 import 'folder_details_page.dart';
+//import 'favorite_folders_page.dart';
 
 class NoteHomePage extends StatefulWidget {
   @override
   _NoteHomePageState createState() => _NoteHomePageState();
 }
+class FavoritesPage extends StatelessWidget {
+  final List<Folder> favoriteFolders;
+
+  FavoritesPage({required this.favoriteFolders});
+
+  @override
+  Widget build(BuildContext context) {
+    print('Received Favorite Folders: $favoriteFolders'); // Add this line to print received data
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Favorite Folders'),
+      ),
+      body: favoriteFolders.isEmpty
+          ? Center(
+        child: Text(
+          'There are no favorites yet.',
+          style: TextStyle(fontSize: 18),
+        ),
+      )
+          : ListView.builder(
+        itemCount: favoriteFolders.length,
+        itemBuilder: (context, index) {
+          final folder = favoriteFolders[index];
+          return ListTile(
+            title: Text(folder.name),
+            // Customize the ListTile as needed
+          );
+        },
+      ),
+    );
+  }
+}
 
 class _NoteHomePageState extends State<NoteHomePage> {
+  String searchTerm = '';
+  List<Folder> favoriteFolders = [];
   List<Folder> folders = [];
   List<bool> folderSelection = [];
 
@@ -125,19 +161,84 @@ class _NoteHomePageState extends State<NoteHomePage> {
             IconButton(
               icon: Icon(Icons.star_purple500),
               onPressed: () {
-                // Add your functionality for the menu button here
+                List<Folder> favoriteFolders = folders.where((folder) => folder.isFavorite).toList();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FavoritesPage(favoriteFolders: favoriteFolders)),
+                );
               },
             ),
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
-                // Add your functionality for the search button here
+                _showSearchDialog();
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  // void _showFavoriteFoldersPage() {
+  //   // Filter out the favorite folders
+  //   List<Folder> favoriteFolders = folders.where((folder) => folder.isFavorite).toList();
+  //   print('Favorite Folders: $favoriteFolders'); // Add this line to print favoriteFolders
+  //
+  //   // Navigate to FavoritesPage
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => FavoritesPage(favoriteFolders: favoriteFolders)),
+  //   );
+  // }
+  //
+  // Widget _buildFavoriteFoldersPage(List<Folder> favoriteFolders) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: Text('Favorite Folders'),
+  //     ),
+  //     body: Center(
+  //       child: Text('Your favorite folders will be displayed here.'),
+  //     ),
+  //   );
+  // }
+
+  void _showSearchDialog() async {
+    String enteredSearchTerm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String currentSearchTerm = '';
+        return AlertDialog(
+          title: Text('Search Folder'),
+          content: TextField(
+            onChanged: (value) {
+              currentSearchTerm = value;
+            },
+            decoration: InputDecoration(labelText: 'Search'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(currentSearchTerm);
+              },
+              child: Text('Search'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (enteredSearchTerm != true) {
+      setState(() {
+        searchTerm = enteredSearchTerm;
+      });
+    }
   }
 
   void _handleMenuSelection(String value) {
@@ -262,8 +363,10 @@ class _NoteHomePageState extends State<NoteHomePage> {
   }
 
   Widget _buildFolderList() {
+    final filteredFolders = _filterFolders(searchTerm);
+
     return ListView.builder(
-      itemCount: folders.length,
+      itemCount: filteredFolders.length,
       itemBuilder: (context, index) {
         final folderColor = _getRandomColor(index);
         return LongPressDraggable<int>(
@@ -286,6 +389,13 @@ class _NoteHomePageState extends State<NoteHomePage> {
         );
       },
     );
+  }
+  List<Folder> _filterFolders(String searchTerm) {
+    return folders.where((folder) {
+      final folderName = folder.name.toLowerCase();
+      final searchTermLower = searchTerm.toLowerCase();
+      return folderName.contains(searchTermLower);
+    }).toList();
   }
 
   Widget _buildFolderTile(int index, Color folderColor) {
