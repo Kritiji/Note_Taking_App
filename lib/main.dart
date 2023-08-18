@@ -4,6 +4,7 @@ import 'page_details_page.dart';
 import 'splash_page.dart';
 import 'note_home_page.dart';
 import 'note_page.dart';
+import 'login_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,10 +16,11 @@ class NoteTakingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
         '/splash': (context) => SplashPage(),
-        '/': (context) => NoteHomePage(),
+        '/': (context) => LoginPage(), // Change this to LoginPage
+        '/noteHome': (context) => NoteHomePage(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/folderDetails') {
