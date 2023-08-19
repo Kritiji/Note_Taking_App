@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-const apiKey = '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';
+const apiKey = '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';
 
 class TextToImagePage extends StatefulWidget {
   @override
