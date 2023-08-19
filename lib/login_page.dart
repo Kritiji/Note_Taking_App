@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class _LoginPageState extends State<LoginPage> {
   String pass = "";
 
   bool isHiddenPassword = true;
+
+  final _formKey = GlobalKey<FormState>();
 
   Widget buildForgotPass(){
     return Container(
@@ -32,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildSignUpBtn(){
     return GestureDetector(
-      onTap: () {Navigator.pushNamed(context, "register_company");},
+      onTap: () {Navigator.pushNamed(context, '/registerPage');},
       child: RichText(
         text: TextSpan(
             children: [
@@ -56,6 +60,28 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  signInWithEmailAndPassword() async{
+    try {
+       await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: pass
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No user found for that email."),
+          ),
+        );
+       // print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        return ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Wrong password provided for that user."),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -157,11 +183,6 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: BoxDecoration(
                                     color: Colors.grey[100],
                                     borderRadius: BorderRadius.circular(10),
-                                    //       boxShadow: [BoxShadow(
-                                    //       color: Color.fromRGBO(22, 224, 32, 0.298),
-                                    //       blurRadius: 20,
-                                    //        offset: Offset(0, 10)
-                                    //  ),]
                                   ),
                                   child: TextField(
                                     onChanged: (value) {
@@ -199,7 +220,11 @@ class _LoginPageState extends State<LoginPage> {
                           margin: EdgeInsets.symmetric(horizontal: 50),
                           child: Center(
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  signInWithEmailAndPassword();
+                                }
+                              },
                               style: ElevatedButton.styleFrom(fixedSize: const Size(150, 70),shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50.0),),backgroundColor: Colors.teal, foregroundColor: Colors.white),
                               child: Text(
