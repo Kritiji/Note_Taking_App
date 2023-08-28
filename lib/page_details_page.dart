@@ -8,6 +8,7 @@ import 'note_page.dart';
 import 'text_to_image_page.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:notetaking/ChatGpt.dart';
 
 class PageDetailsPage extends StatefulWidget {
   final NotePage page;
@@ -101,6 +102,8 @@ class _PageDetailsPageState extends State<PageDetailsPage> {
                         points: [],
                         color: _selectedColor,
                         width: _selectedStrokeWidth,
+
+
                       )); // Finish the current line when turning off drawing
                     }
                   });
@@ -176,7 +179,7 @@ class _PageDetailsPageState extends State<PageDetailsPage> {
           backgroundColor: Colors.blue,
           // label: 'Contact',
           onTap: () {
-            // Implement contact functionality here
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatGPTScreen()));
           },
         ),
         SpeedDialChild(
@@ -456,6 +459,7 @@ class _PageDetailsPageState extends State<PageDetailsPage> {
     });
   }
 
+
   void _onPanEnd(DragEndDetails details) {
     if (_currentLine != null) {
       setState(() {
@@ -594,4 +598,3 @@ class DrawnLine {
     required this.width,
   });
 }
-
